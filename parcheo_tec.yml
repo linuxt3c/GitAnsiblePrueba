@@ -15,6 +15,7 @@
 
     - name: Load Oracle environment
       ansible.builtin.shell: |
+        export ORAENV_ASK=NO
         export ORACLE_SID="{{ oracle_sid }}"
         . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         echo "ORACLE_SID=$ORACLE_SID"
