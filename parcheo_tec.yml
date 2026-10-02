@@ -6,10 +6,10 @@
   gather_facts: false
 
   vars:
-    oracle_sid: "DEVL"
+    oracle_sid: "PROD"
     databases:
-      - "DEVL"
-      - "EEIDEVL"
+      - "PROD"
+      - "EEIPROD"
     id_desicion: "NO"  
 
   tasks:
