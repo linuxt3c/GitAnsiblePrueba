@@ -115,3 +115,10 @@
           - "{{ item.stdout }}"
       loop: "{{ database_status_after.results }}"
       
+    - name: Stop Oracle HAS
+      ansible.builtin.shell: |
+        crsctl stop has -f
+      become: true
+      become_user: oracle
+      args:
+        executable: /bin/bash
