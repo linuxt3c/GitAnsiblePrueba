@@ -18,7 +18,7 @@
       ansible.builtin.shell: |
         export ORAENV_ASK=NO
         export ORACLE_SID="{{ oracle_sid }}"
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+        . oraenv <<< "{{ oracle_sid }}"
         echo "ORACLE_SID=$ORACLE_SID"
         echo "ORACLE_HOME=$ORACLE_HOME"
         echo "ORAENV_ASK=$ORAENV_ASK"
