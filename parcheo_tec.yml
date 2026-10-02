@@ -41,6 +41,7 @@
         executable: /bin/bash
       register: srvctl_check
       changed_when: false
+      failed_when: false
 
     - name: Display srvctl location
       ansible.builtin.debug:
