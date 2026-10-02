@@ -6,10 +6,10 @@
   gather_facts: false
 
   vars:
-    oracle_sid: "PROD"
+    oracle_sid: "DEVL"
     databases:
-      - "PROD"
-      - "EEIPROD"
+      - "DEVL"
+      - "EEIDEVL"
     id_desicion: "NO"  
 
   tasks:
@@ -17,8 +17,6 @@
     - name: Load Oracle environment
       ansible.builtin.shell: |
         export ORAENV_ASK=NO
-        export ORACLE_HOME="/u00/app/oracle/product/19c"
-        export PATH="$ORACLE_HOME/bin:$PATH"
         export ORACLE_SID="{{ oracle_sid }}"
         . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         echo "ORACLE_SID=$ORACLE_SID"
@@ -35,21 +33,14 @@
 
     - name: Verify srvctl is available
       ansible.builtin.shell: |
-        export ORAENV_ASK=NO
-        export ORACLE_HOME="/u00/app/oracle/product/19c"
         export PATH="$ORACLE_HOME/bin:$PATH"
-        export ORACLE_SID="{{ oracle_sid }}"
+        echo "PATH=$PATH"
         . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
-        echo "ORACLE_SID=$ORACLE_SID"
-        echo "ORACLE_HOME=$ORACLE_HOME"
-        echo "ORAENV_ASK=$ORAENV_ASK"
-
         which srvctl
       args:
         executable: /bin/bash
       register: srvctl_check
       changed_when: false
-      failed_when: false
 
     - name: Display srvctl location
       ansible.builtin.debug:
