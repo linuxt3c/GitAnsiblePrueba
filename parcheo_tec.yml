@@ -6,10 +6,10 @@
   gather_facts: false
 
   vars:
-    oracle_sid: "DEVL"
+    oracle_sid: "PROD"
     databases:
-      - "DEVL"
-      - "EEIDEVL"
+      - "PROD"
+      - "EEIPROD"
     id_desicion: "NO"  
 
   tasks:
@@ -18,7 +18,7 @@
       ansible.builtin.shell: |
         export ORAENV_ASK=NO
         export ORACLE_SID="{{ oracle_sid }}"
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+        . oraenv
         echo "ORACLE_SID=$ORACLE_SID"
         echo "ORACLE_HOME=$ORACLE_HOME"
         echo "ORAENV_ASK=$ORAENV_ASK"
@@ -33,9 +33,9 @@
 
     - name: Verify srvctl is available
       ansible.builtin.shell: |
-        export PATH="$ORACLE_HOME/bin:$PATH"
-        echo "PATH=$PATH"
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+#        export PATH="$ORACLE_HOME/bin:$PATH"
+#        echo "PATH=$PATH"
+#        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         which srvctl
       args:
         executable: /bin/bash
@@ -48,7 +48,7 @@
 
     - name: Check Oracle database status
       ansible.builtin.shell: |
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+#        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         srvctl status database -d "{{ item }}"
       args:
         executable: /bin/bash
@@ -66,7 +66,7 @@
 
     - name: Stop Oracle databases
       ansible.builtin.shell: |
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+#        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         srvctl stop database -d "{{ item }}" -o immediate
       args:
         executable: /bin/bash
@@ -76,7 +76,7 @@
 
     - name: Verify databases are stopped
       ansible.builtin.shell: |
-        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
+ #       . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         srvctl status database -d "{{ item }}"
       args:
         executable: /bin/bash
@@ -91,3 +91,4 @@
           - "Database: {{ item.item }}"
           - "{{ item.stdout }}"
       loop: "{{ database_status_after.results }}"
+      
