@@ -37,7 +37,6 @@
         export PATH="$ORACLE_HOME/bin:$PATH"
         echo "ORACLE_HOME=$ORACLE_HOME"
         echo "PATH=$PATH"
-#        . oraenv <<< "{{ oracle_sid }}" >/dev/null 2>&1
         which srvctl
       args:
         executable: /bin/bash
