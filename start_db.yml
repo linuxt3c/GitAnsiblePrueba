@@ -1,0 +1,130 @@
+---
+- name: Start Oracle databases for maintenance
+  hosts: base_datos
+  become: true
+  become_user: oracle
+  gather_facts: false
+
+  vars:
+    oracle_sid: "PROD"
+    databases:
+      - "PROD"
+      - "EEIPROD"
+    id_desicion: "NO"  
+
+  tasks:
+
+    - name: Load Oracle environment
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+      args:
+        executable: /bin/bash
+      register: oracle_environment
+      changed_when: false
+
+    - name: Show Oracle environment
+      ansible.builtin.debug:
+        var: oracle_environment.stdout_lines
+
+    - name: Verify srvctl is available
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+        which srvctl
+      args:
+        executable: /bin/bash
+      register: srvctl_check
+      changed_when: false
+
+    - name: Display srvctl location
+      ansible.builtin.debug:
+        msg: "SRVCTL: {{ srvctl_check.stdout }}"
+
+    - name: Check Oracle database status
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+        srvctl status database -d "{{ item }}"
+      args:
+        executable: /bin/bash
+      loop: "{{ databases }}"
+      register: database_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display database status after shutdown
+      ansible.builtin.debug:
+        msg:
+          - "Database: {{ item.item }}"
+          - "{{ item.stdout }}"
+      loop: "{{ database_status.results }}"
+
+    - name: Start Oracle databases
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+        srvctl start database -d "{{ item }}" -o immediate
+      args:
+        executable: /bin/bash
+      loop: "{{ databases }}"
+      register: start_database
+      changed_when: true
+
+    - name: Verify databases are started
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+        srvctl status database -d "{{ item }}"
+      args:
+        executable: /bin/bash
+      loop: "{{ databases }}"
+      register: database_status_after
+      changed_when: false
+      failed_when: false
+
+    - name: Display database status after shutdown
+      ansible.builtin.debug:
+        msg:
+          - "Database: {{ item.item }}"
+          - "{{ item.stdout }}"
+      loop: "{{ database_status_after.results }}"
+      
+    - name: Start Oracle HAS
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="+ASM"
+        export ORACLE_HOME="/u01/app/oracle/grid/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        crsctl start has -f
+      become: true
+      become_user: oracle
+      args:
+        executable: /bin/bash
