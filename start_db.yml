@@ -128,3 +128,71 @@
       become_user: oracle
       args:
         executable: /bin/bash
+
+- name: Wait until ASM is running
+  ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="+ASM"
+        export ORACLE_HOME="/u01/app/oracle/grid/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+    srvctl status asm
+  args:
+    executable: /bin/bash
+  register: asm_status
+  changed_when: false
+  until: "'running' in asm_status.stdout | lower"
+  retries: 60
+  delay: 10
+
+- name: Display ASM status
+  ansible.builtin.debug:
+    msg: "ASM status: {{ asm_status.stdout }}"
+
+- name: Check ASM disk groups
+  ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="+ASM"
+        export ORACLE_HOME="/u01/app/oracle/grid/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+
+    crsctl stat res -t -w "TYPE = ora.diskgroup.type"
+  args:
+    executable: /bin/bash
+  register: diskgroup_status
+  changed_when: false
+  failed_when: false
+
+- name: Display ASM disk group status
+  ansible.builtin.debug:
+    var: diskgroup_status.stdout_lines
+
+- name: Extract ASM disk group resources
+  ansible.builtin.set_fact:
+    asm_diskgroups: >-
+      {{
+        diskgroup_status.stdout_lines
+        | select('match', '^ora\..+\.dg\s+')
+        | list
+      }}
+
+- name: Validate ASM disk groups were found
+  ansible.builtin.assert:
+    that:
+      - asm_diskgroups | length > 0
+    fail_msg: |
+      No ASM disk groups were found.
+      CRSCTL output:
+      {{ diskgroup_status.stdout }}
+
+- name: Validate all ASM disk groups are ONLINE
+  ansible.builtin.assert:
+    that:
+      - item is search('ONLINE')
+    fail_msg: "ASM disk group is not ONLINE: {{ item }}"
+    success_msg: "ASM disk group is ONLINE: {{ item }}"
+  loop: "{{ asm_diskgroups }}"
+  
