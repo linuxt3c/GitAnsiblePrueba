@@ -142,7 +142,7 @@
     executable: /bin/bash
   register: asm_status
   changed_when: false
-  until: "'running' in asm_status.stdout | lower"
+  until: "'is running' in asm_status.stdout | lower"
   retries: 60
   delay: 10
 
