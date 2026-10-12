@@ -159,7 +159,7 @@
         echo "ORACLE_SID=$ORACLE_SID"
         echo "ORACLE_HOME=$ORACLE_HOME"
 
-    crsctl stat res -t -w "TYPE = ora.diskgroup.type"
+        crsctl stat res -t -w "TYPE = ora.diskgroup.type"
   args:
     executable: /bin/bash
   register: diskgroup_status
