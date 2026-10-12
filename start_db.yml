@@ -137,7 +137,7 @@
         export PATH="$ORACLE_HOME/bin:$PATH"
         echo "ORACLE_SID=$ORACLE_SID"
         echo "ORACLE_HOME=$ORACLE_HOME"
-    srvctl status asm
+        srvctl status asm
   args:
     executable: /bin/bash
   register: asm_status
