@@ -210,3 +210,18 @@
           - "{{ item.stdout }}"
       loop: "{{ database_status_after.results }}"
       
+    - name: Start Oracle service
+      ansible.builtin.shell: |
+        export ORAENV_ASK=NO
+        export ORACLE_SID="{{ oracle_sid }}"
+        export ORACLE_HOME="/u00/app/oracle/product/19c"
+        export PATH="$ORACLE_HOME/bin:$PATH"
+        echo "ORACLE_SID=$ORACLE_SID"
+        echo "ORACLE_HOME=$ORACLE_HOME"
+        echo "ORAENV_ASK=$ORAENV_ASK"
+        srvctl start service -d PROD
+      args:
+        executable: /bin/bash
+      loop: "{{ databases }}"
+      register: start_database
+      changed_when: true
