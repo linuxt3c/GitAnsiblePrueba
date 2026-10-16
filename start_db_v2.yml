@@ -228,3 +228,4 @@
       loop: "{{ databases }}"
       register: start_database
       changed_when: true
+      failed_when: false
