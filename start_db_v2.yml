@@ -182,7 +182,7 @@
         echo "ORACLE_SID=$ORACLE_SID"
         echo "ORACLE_HOME=$ORACLE_HOME"
         echo "ORAENV_ASK=$ORAENV_ASK"
-        srvctl start database -d "{{ item }}" -o immediate
+        srvctl start database -d "{{ item }}"
       args:
         executable: /bin/bash
       loop: "{{ databases }}"
