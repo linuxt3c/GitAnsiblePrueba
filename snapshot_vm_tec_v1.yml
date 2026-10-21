@@ -13,23 +13,23 @@
 
   tasks:
 
-    - name: Gracefully shut down the VM
-      vmware.vmware.vm_powerstate:
-        validate_certs: "{{ validate_certs }}"
-        datacenter: "{{ datacenter_name }}"
-        folder: "{{ vm_folder }}"
-        name: "{{ vm_name }}"
-        state: shutdown-guest
-        timeout: 1800
+    #- name: Gracefully shut down the VM
+    #  vmware.vmware.vm_powerstate:
+    #    validate_certs: "{{ validate_certs }}"
+    #    datacenter: "{{ datacenter_name }}"
+    #    folder: "{{ vm_folder }}"
+    #    name: "{{ vm_name }}"
+    #    state: shutdown-guest
+    #    timeout: 1800
 
-    - name: Ensure the VM is powered off
-      vmware.vmware.vm_powerstate:
-        validate_certs: "{{ validate_certs }}"
-        datacenter: "{{ datacenter_name }}"
-        folder: "{{ vm_folder }}"
-        name: "{{ vm_name }}"
-        state: powered-off
-        timeout: 1800
+    #- name: Ensure the VM is powered off
+    #  vmware.vmware.vm_powerstate:
+    #    validate_certs: "{{ validate_certs }}"
+    #    datacenter: "{{ datacenter_name }}"
+    #    folder: "{{ vm_folder }}"
+    #    name: "{{ vm_name }}"
+    #    state: powered-off
+    #    timeout: 1800
 
     - name: Create snapshot of the powered-off VM
       vmware.vmware.vm_snapshot:
@@ -43,14 +43,14 @@
         timeout: 3600
       register: snapshot_result
 
-    - name: Power on the VM
-      vmware.vmware.vm_powerstate:
-        validate_certs: "{{ validate_certs }}"
-        datacenter: "{{ datacenter_name }}"
-        folder: "{{ vm_folder }}"
-        name: "{{ vm_name }}"
-        state: powered-on
-        timeout: 1800
+    #- name: Power on the VM
+    #  vmware.vmware.vm_powerstate:
+    #    validate_certs: "{{ validate_certs }}"
+    #    datacenter: "{{ datacenter_name }}"
+    #    folder: "{{ vm_folder }}"
+    #    name: "{{ vm_name }}"
+    #    state: powered-on
+    #    timeout: 1800
 
     - name: Display snapshot result
       ansible.builtin.debug:
