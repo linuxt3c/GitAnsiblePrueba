@@ -41,7 +41,7 @@
         state: present
         snapshot_name: "{{ snapshot_name }}"
         description: "{{ snapshot_description }}"
-        timeout: 3600
+    #    timeout: 3600
       register: snapshot_result
 
     #- name: Power on the VM
