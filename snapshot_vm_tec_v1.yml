@@ -10,6 +10,7 @@
     vm_name: "pprd004db07"
     snapshot_name: "snapshot_ansible"
     snapshot_description: "Snapshot before maintenance"
+    validate_certs: false
 
   tasks:
 
