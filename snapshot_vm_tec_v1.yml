@@ -1,0 +1,73 @@
+
+---
+- name: Power off, snapshot, and power on VMware VM
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    datacenter_name: "ITESM_BD"
+    vm_folder: "NOPROD_DB_LIN"
+    vm_name: "pprd004db07"
+    snapshot_name: "snapshot_ansible"
+    snapshot_description: "Snapshot before maintenance"
+    validate_certs: false
+
+  tasks:
+
+    - name: Gracefully shut down the VM
+      vmware.vmware.vm_powerstate:
+        validate_certs: "{{ validate_certs }}"
+        datacenter: "{{ datacenter_name }}"
+        folder: "{{ vm_folder }}"
+        name: "{{ vm_name }}"
+        state: shutdown-guest
+
+    - name: Ensure the VM is powered off
+      vmware.vmware.vm_powerstate:
+        validate_certs: "{{ validate_certs }}"
+        datacenter: "{{ datacenter_name }}"
+        folder: "{{ vm_folder }}"
+        name: "{{ vm_name }}"
+        state: powered-off
+
+    - name: Create snapshot of the powered-off VM
+      vmware.vmware.vm_snapshot:
+        validate_certs: "{{ validate_certs }}"
+        datacenter: "{{ datacenter_name }}"
+        folder: "{{ vm_folder }}"
+        name: "{{ vm_name }}"
+        state: present
+        snapshot_name: "{{ snapshot_name }}"
+        description: "{{ snapshot_description }}"
+      register: snapshot_result
+
+    - name: Power on the VM
+      vmware.vmware.vm_powerstate:
+        validate_certs: "{{ validate_certs }}"
+        datacenter: "{{ datacenter_name }}"
+        folder: "{{ vm_folder }}"
+        name: "{{ vm_name }}"
+        state: powered-on
+
+    - name: Display snapshot result
+      ansible.builtin.debug:
+        msg:
+          - "VM: {{ vm_name }}"
+          - "Snapshot: {{ snapshot_name }}"
+          - "Snapshot operation: {{ snapshot_result.changed }}"
+          - "Workflow completed."
+
+
+    - name: Upgrade all packages to the latest version
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_cache: true
+      register: dnf_update_result
+
+    - name: Reboot the server
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible after package updates"
+        reboot_timeout: 300
+        test_command: uptime      
+
