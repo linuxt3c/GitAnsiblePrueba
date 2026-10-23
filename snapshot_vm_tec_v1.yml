@@ -57,12 +57,6 @@
           - "Snapshot operation: {{ snapshot_result.changed }}"
           - "Workflow completed."
 
-    - name: Install python3-dnf on RHEL 8
-      ansible.builtin.raw: /usr/bin/dnf install -y python3-dnf
-      become: true
-      register: install_result
-      changed_when: "'Nothing to do' not in install_result.stdout"
-      changed_when: false
 
     - name: Upgrade all packages to the latest version
       ansible.builtin.yum:
