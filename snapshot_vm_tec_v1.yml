@@ -63,7 +63,7 @@
         name: "*"
         state: latest
         update_cache: true
-        become: true
+      become: true
       register: dnf_update_result
 
     - name: Reboot the server
