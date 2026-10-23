@@ -62,9 +62,10 @@
       become: true
       register: install_result
       changed_when: "'Nothing to do' not in install_result.stdout"
+      changed_when: false
 
     - name: Upgrade all packages to the latest version
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         name: "*"
         state: latest
         update_cache: true
