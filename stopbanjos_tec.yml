@@ -1,0 +1,48 @@
+---
+- name: Stop all processes owned by banjobs
+  hosts: servidores_miscelaneos
+  become: true
+  gather_facts: false
+
+  vars:
+    target_user: banjobs
+
+  tasks:
+    - name: Verify banjobs user exists
+      ansible.builtin.command:
+        cmd: id {{ target_user }}
+      register: user_check
+      changed_when: false
+
+    - name: Display processes owned by banjobs
+      ansible.builtin.command:
+        cmd: pgrep -a -u {{ target_user }}
+      register: process_list
+      changed_when: false
+      failed_when: false
+
+    - name: Show processes before termination
+      ansible.builtin.debug:
+        var: process_list.stdout_lines
+
+    - name: Forcefully terminate all banjobs processes
+      ansible.builtin.command:
+        cmd: pkill -9 -u {{ target_user }}
+      register: kill_result
+      changed_when: kill_result.rc == 0
+      failed_when: kill_result.rc not in [0, 1]
+
+    - name: Verify no processes remain
+      ansible.builtin.command:
+        cmd: pgrep -u {{ target_user }}
+      register: remaining_processes
+      retries: 5
+      delay: 2
+      until: remaining_processes.rc == 1
+      changed_when: false
+      failed_when: remaining_processes.rc not in [0, 1]
+
+    - name: Confirm process termination
+      ansible.builtin.debug:
+        msg: "All processes owned by {{ target_user }} have been terminated."
+
