@@ -1,4 +1,3 @@
-
 ---
 - name: Power off, snapshot, and power on VMware VM
   hosts: localhost
