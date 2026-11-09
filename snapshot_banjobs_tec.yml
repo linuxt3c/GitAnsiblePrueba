@@ -56,6 +56,10 @@
           - "Snapshot operation: {{ snapshot_result.changed }}"
           - "Workflow completed."
 
+    - name: Wait 3 minutes for the VM to initialize
+      ansible.builtin.pause:
+        seconds: 180
+
 - name: Upgrade all packages to the latest version
   hosts: servidores_miscelaneos
   gather_facts: false
