@@ -1,0 +1,47 @@
+
+---
+- name: Start BANJOBS services using jobcheck script
+  hosts: servidores_miscelaneos
+  become: true
+  gather_facts: false
+
+  vars:
+    banjobs_script: /u01/banjobs/bin/jobcheck_ANY_ITESM.shl
+    banjobs_environment: SANDBOX
+    banjobs_log: /u01/banjobs/bin/check_jobsub.log
+
+  tasks:
+
+    - name: Verify BANJOBS script exists
+      ansible.builtin.stat:
+        path: "{{ banjobs_script }}"
+      register: banjobs_script_stat
+
+    - name: Fail if script does not exist
+      ansible.builtin.fail:
+        msg: "BANJOBS script not found: {{ banjobs_script }}"
+      when: not banjobs_script_stat.stat.exists
+
+    - name: Execute BANJOBS startup/check script
+      ansible.builtin.shell: |
+        bash {{ banjobs_script }} {{ banjobs_environment }} >> {{ banjobs_log }} 2>&1
+      args:
+        executable: /bin/bash
+      register: banjobs_execution
+      changed_when: true
+      failed_when: banjobs_execution.rc != 0
+
+    - name: Display execution result
+      ansible.builtin.debug:
+        msg: "BANJOBS script executed successfully on {{ inventory_hostname }}"
+
+    - name: Display last 20 lines of BANJOBS log
+      ansible.builtin.command:
+        cmd: tail -20 {{ banjobs_log }}
+      register: banjobs_log_output
+      changed_when: false
+
+    - name: Show log output
+      ansible.builtin.debug:
+        var: banjobs_log_output.stdout_lines
+        
