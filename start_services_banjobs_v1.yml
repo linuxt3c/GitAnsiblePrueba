@@ -1,0 +1,43 @@
+
+---
+- name: Start BANJOBS services
+  hosts: banjobs_servers
+  become: true
+  become_user: banjobs
+  gather_facts: false
+
+  tasks:
+
+    - name: Execute BANJOBS startup script
+      ansible.builtin.shell: |
+        bash /u01/banjobs/bin/jobcheck_ANY_ITESM.shl SANDBOX >> /u01/banjobs/bin/check_jobsub.log 2>&1
+      args:
+        executable: /bin/bash
+      register: banjobs_result
+      changed_when: true
+      failed_when: banjobs_result.rc != 0
+
+    - name: Display execution status
+      ansible.builtin.debug:
+        msg: "BANJOBS startup command executed successfully as user banjobs."
+
+    - name: Verify log file
+      ansible.builtin.stat:
+        path: /u01/banjobs/bin/check_jobsub.log
+      register: banjobs_log
+
+    - name: Display log information
+      ansible.builtin.debug:
+        msg: "Log file exists: {{ banjobs_log.stat.exists }}"
+
+    - name: Display last 20 lines of log
+      ansible.builtin.command:
+        cmd: tail -20 /u01/banjobs/bin/check_jobsub.log
+      register: log_output
+      changed_when: false
+
+    - name: Show BANJOBS execution log
+      ansible.builtin.debug:
+        var: log_output.stdout_lines
+
+        
