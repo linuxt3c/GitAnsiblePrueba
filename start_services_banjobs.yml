@@ -24,12 +24,14 @@
 
     - name: Execute BANJOBS startup/check script
       ansible.builtin.shell: |
-        sh {{ banjobs_script }} {{ banjobs_environment }} >> {{ banjobs_log }} 2>&1
+        bash {{ banjobs_script }} {{ banjobs_environment }} >> {{ banjobs_log }} 2>&1
       args:
         executable: /bin/bash
       register: banjobs_execution
       changed_when: true
       failed_when: banjobs_execution.rc != 0
+      become_user: banjobs
+      become: true
 
     - name: Display execution result
       ansible.builtin.debug:
