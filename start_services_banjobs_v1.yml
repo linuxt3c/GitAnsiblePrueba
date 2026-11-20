@@ -1,7 +1,7 @@
 
 ---
 - name: Start BANJOBS services
-  hosts: banjobs_servers
+  hosts: servidores_miscelaneos
   become: true
   become_user: banjobs
   gather_facts: false
