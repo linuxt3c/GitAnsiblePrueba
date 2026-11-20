@@ -9,7 +9,7 @@
   tasks:
 
     - name: Execute BANJOBS startup script
-      ansible.builtin.shell: |
+      ansible.builtin.command: |
         bash /u01/banjobs/bin/jobcheck_ANY_ITESM.shl SANDBOX >> /u01/banjobs/bin/check_jobsub.log 2>&1
       args:
         executable: /bin/bash
